@@ -5,7 +5,7 @@ export function log(
 	message: any,
 	level: 'info' | 'warn' | 'error' | 'debug' = 'info'
 ) {
-	if (level === 'debug' && process.env.NODE_ENV !== 'development') return
+	if (level === 'debug' && process.env.DEBUG_ENABLED != 'true') return
 	// get the current timestamp in the format: YYYY-MM-DD HH:mm:ss
 	const timestamp = moment().format('YYYY-MM-DD HH:mm:ss')
 	// colorize the message based on the log level

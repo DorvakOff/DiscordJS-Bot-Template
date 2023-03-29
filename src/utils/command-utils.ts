@@ -31,6 +31,7 @@ export function loadCommands(client: Client): Command[] {
                 command.metadata = {
                     module: module
                 }
+                log(`Loaded command ${command.name} from module ${module}`, 'debug')
                 commands.push(command)
             }
         })
@@ -71,7 +72,9 @@ export function loadServerCommands(server: DiscordServer, guild: Guild): void {
         }
     })
 
-    guild.commands.set(toRegister).catch((error) => {
+    guild.commands.set(toRegister).then(() => {
+        log(`Registered ${toRegister.length} commands for ${guild.name}`, 'debug')
+    }).catch((error) => {
         log(error, 'error')
     })
 }
