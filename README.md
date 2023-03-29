@@ -1,1 +1,1 @@
-# DiscordJS-Bot-Template" 
+# DiscordJS-Bot-Template
