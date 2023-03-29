@@ -1,42 +1,65 @@
-import { log } from './utils/logger'
+import {log} from './utils/logger'
 import 'dotenv/config'
-import { Client, GatewayIntentBits, GuildMember } from 'discord.js'
-import { loadCommands } from './utils/command-utils'
-import Command from './commands/command'
+import {Client, GatewayIntentBits} from 'discord.js'
+import {getCommands, loadCommands} from './utils/command-utils'
+import {loadSchema} from "./utils/database";
+import chalk from "chalk";
 
 const start = Date.now()
 const token = process.env.TOKEN
 
 if (!token) {
-	log('No token provided', 'error')
-	process.exit(1)
+    log('No token provided', 'error')
+    process.exit(1)
 }
 
 log('Token provided', 'info')
 
 const client = new Client({
-	intents: [GatewayIntentBits.Guilds],
+    intents: [GatewayIntentBits.Guilds],
 })
 
 client.login(token).catch((error) => {
-	log(error, 'error')
-	process.exit(1)
+    log(error, 'error')
+    process.exit(1)
 })
 
-let commands: Command[] = []
-
 client.on('ready', () => {
-	log(`API started, took ${Date.now() - start} ms`, 'info')
+    loadSchema()
 
-	commands = loadCommands(client)
+    loadCommands(client)
+
+    printStartupTime()
 })
 
 client.on('interactionCreate', (interaction) => {
-	if (!interaction.isCommand()) return
+    if (!interaction.isCommand()) return
 
-	const command = commands.find((c) => c.name === interaction.commandName)
+    const command = getCommands().find((c) => c.name === interaction.commandName)
 
-	if (!command || !interaction.guild) return
+    if (!command || !interaction.guild) return
 
-	command.run(client, interaction.user, interaction.guild, interaction)
+    command.run(client, interaction.user, interaction.guild, interaction).then(() => {
+        log(`Executed command ${command.name} in ${interaction.guild!.name} (requested by ${interaction.user.tag})`, 'debug')
+    }).catch((error) => {
+        log(error, 'error')
+    })
 })
+
+function printStartupTime() {
+    let time: any = Date.now() - start
+
+    if (time < 5000) {
+        time = chalk.green(time)
+    } else if (time < 10000) {
+        time = chalk.yellow(time)
+    } else {
+        time = chalk.red(time)
+    }
+
+    log(`API started, took ${time} ms`)
+}
+
+export function getClient(): Client {
+    return client
+}

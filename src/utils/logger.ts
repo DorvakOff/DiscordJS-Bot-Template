@@ -20,8 +20,6 @@ export function log(
 
 function colorizeLogMessage(message: any, level: string): string {
 	switch (level) {
-		case 'info':
-			return chalk.gray(message)
 		case 'warn':
 			return chalk.yellow(message)
 		case 'error':
