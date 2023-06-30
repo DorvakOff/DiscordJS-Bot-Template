@@ -2,7 +2,6 @@ import {log} from './utils/logger'
 import 'dotenv/config'
 import {Client, GatewayIntentBits} from 'discord.js'
 import {getCommands, loadCommands} from './utils/command-utils'
-import {loadSchema} from "./utils/database";
 import chalk from "chalk";
 
 const start = Date.now()
@@ -25,8 +24,6 @@ client.login(token).catch((error) => {
 })
 
 client.on('ready', () => {
-    loadSchema()
-
     loadCommands(client)
 
     printStartupTime()

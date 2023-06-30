@@ -2,8 +2,6 @@ import {Client, Guild} from 'discord.js'
 import fs from 'fs'
 import Command from '../commands/command'
 import {log} from './logger'
-import {getServer} from "../managers/server-manager";
-import {DiscordServer} from "../models/discord-server";
 
 let commandList: Command[] = []
 
@@ -40,32 +38,15 @@ export function loadCommands(client: Client): Command[] {
     // Log the number of commands loaded
     log(`Loaded ${commands.length} commands`)
 
-    registerCommands(client.guilds.cache.map((guild) => guild))
+    client.guilds.cache.forEach((guild) => loadServerCommands(guild))
 
     commandList = commands
 
     return commands
 }
 
-export function registerCommands(guilds: Guild[]): void {
-    guilds.forEach(
-        (guild) => {
-            getServer(guild.id).then(server => {
-                if (server) {
-                    loadServerCommands(server, guild)
-                }
-            })
-        }
-    )
-}
-
-
-export function loadServerCommands(server: DiscordServer, guild: Guild): void {
-    let toRegister: any[] = commandList.filter(
-        (command) =>
-            !server.disabledCommands.includes(command.name)
-            && !server.disabledModules.includes(command.metadata.module)
-    ).map((command) => {
+export function loadServerCommands(guild: Guild): void {
+    let toRegister: any[] = commandList.map((command) => {
         return {
             name: command.name,
             description: command.description,
