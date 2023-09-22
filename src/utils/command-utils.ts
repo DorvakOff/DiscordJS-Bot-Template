@@ -38,9 +38,9 @@ export function loadCommands(client: Client): Command[] {
     // Log the number of commands loaded
     log(`Loaded ${commands.length} commands`)
 
-    client.guilds.cache.forEach((guild) => loadServerCommands(guild))
-
     commandList = commands
+    
+    client.guilds.cache.forEach((guild) => loadServerCommands(guild))
 
     return commands
 }
